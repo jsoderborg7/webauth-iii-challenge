@@ -4,7 +4,6 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const Users = require('./users/users-model');
 const Protected = require('./middleware/protected');
-const checkDept = require('./middleware/check-department');
 const jwt = require('jsonwebtoken');
 const secrets = require('./config/secrets');
 
@@ -40,7 +39,8 @@ server.post('/api/login', (req, res) =>{
         console.log('User info',user);
         if (user && bcrypt.compareSync(password, user.password)){
           const token = generateToken(user);
-          res.status(200).json({message: `${user.username} is logged in!`,token,})
+          console.log('token', token);
+          res.status(200).json({message: `${user.username} is logged in!`,token: `${user.token}`})
         } else {
           res.status(400).json({message: "Invalid username or password"})
         }
@@ -50,7 +50,7 @@ server.post('/api/login', (req, res) =>{
       })
 });
 
-server.get('/api/users', Protected, checkDept, (req, res) =>{
+server.get('/api/users', Protected, (req, res) =>{
   Users.find()
   .then(user =>{
     res.json({loggedInUser: req.username, user})
